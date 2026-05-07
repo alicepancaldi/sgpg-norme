@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Norme · Sistema di Gestione Parità di Genere · Open Project</title>
+<meta name="description" content="Dashboard delle norme di riferimento per il Sistema di Gestione della Parità di Genere (SGPG) — UNI/PdR 125:2022">
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     PALETTE & TIPOGRAFIA — Open Project SGPG
+     ═══════════════════════════════════════════════════════════════ */
+  :root {
+    --viola-scuro:  #3D0D5C;
+    --viola:        #7B1FA2;
+    --viola-med:    #9C27B0;
+    --viola-light:  #E1BEE7;
+    --viola-pale:   #F3E5F5;
+    --off-white:    #F8F4FB;
+    --white:        #FFFFFF;
+    --gray:         #64748B;
+    --gray-light:   #E8E0F0;
+    --gray-bg:      #F5F2F8;
+    --black:        #1A0A24;
+    --gold:         #F9A825;
+    --green:        #2E7D32;
+    --green-light:  #E8F5E9;
+    --red:          #C62828;
+    --red-light:    #FFEBEE;
+    --shadow-sm:    0 2px 8px rgba(61,13,92,0.06);
+    --shadow-md:    0 4px 16px rgba(61,13,92,0.10);
+    --shadow-lg:    0 12px 40px rgba(61,13,92,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
+    background: var(--off-white);
+    color: var(--black);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     HEADER — barra viola scuro con logo Open Project
+     ═══════════════════════════════════════════════════════════════ */
+  .topbar {
+    background: linear-gradient(135deg, var(--viola-scuro) 0%, #2A0843 100%);
+    color: var(--white);
+    padding: 28px 48px;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  /* Logo Open Project — riproduce fedelmente l'originale */
+  .logo svg {
+    height: 56px;
+    width: auto;
+    display: block;
+  }
+
+  .topbar-meta {
+    text-align: right;
+    font-size: 13px;
+    color: var(--viola-light);
+  }
+  .topbar-meta strong {
+    color: var(--white);
+    display: block;
+    font-size: 14px;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════════ */
+  .hero {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 56px 48px 40px;
+  }
+  .hero-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--viola);
+    background: var(--viola-pale);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-family: 'Arial Black', 'Arial', sans-serif;
+    font-size: 38px;
+    color: var(--viola-scuro);
+    line-height: 1.15;
+    margin-bottom: 12px;
+    max-width: 900px;
+  }
+  .hero p.lead {
+    font-size: 16px;
+    color: var(--gray);
+    max-width: 800px;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     STATS BAR
+     ═══════════════════════════════════════════════════════════════ */
+  .stats {
+    max-width: 1400px;
+    margin: 32px auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stat {
+    background: var(--off-white);
+    border-left: 4px solid var(--viola-med);
+    padding: 18px 20px;
+    border-radius: 6px;
+  }
+  .stat-num {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 32px;
+    color: var(--viola-scuro);
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 12px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONTROLS — search & filtri
+     ═══════════════════════════════════════════════════════════════ */
+  .controls {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 48px 16px;
+  }
+  .controls-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    flex: 1;
+    min-width: 280px;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 14px 18px 14px 44px;
+    border: 2px solid var(--gray-light);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .search-wrap input:focus {
+    outline: none;
+    border-color: var(--viola-med);
+    box-shadow: 0 0 0 4px rgba(156,39,176,0.10);
+  }
+  .search-wrap::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237B1FA2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/></svg>");
+    background-repeat: no-repeat;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    padding: 10px 18px;
+    border: 2px solid var(--gray-light);
+    background: var(--white);
+    border-radius: 24px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .chip:hover {
+    border-color: var(--viola-med);
+    color: var(--viola);
+  }
+  .chip.active {
+    background: var(--viola-scuro);
+    border-color: var(--viola-scuro);
+    color: var(--white);
+  }
+  .chip .count {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+  }
+  .chip:not(.active) .count {
+    background: var(--viola-pale);
+    color: var(--viola);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     MAIN GRID — schede norme
+     ═══════════════════════════════════════════════════════════════ */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 48px 80px;
+  }
+
+  .results-meta {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-light);
+  }
+  .results-meta strong {
+    color: var(--viola-scuro);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-light);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--viola-med);
+    transition: width 0.25s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--viola-light);
+  }
+  .card:hover::before {
+    width: 6px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .card-code {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14px;
+    color: var(--viola-scuro);
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge.cogente {
+    background: var(--red-light);
+    color: var(--red);
+  }
+  .badge.volontaria {
+    background: var(--green-light);
+    color: var(--green);
+  }
+  .badge.contrattuale {
+    background: #FFF3E0;
+    color: #E65100;
+  }
+  .badge.linea-guida {
+    background: var(--viola-pale);
+    color: var(--viola);
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--black);
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+
+  .card-desc {
+    font-size: 13.5px;
+    color: var(--gray);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+
+  .card-areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .area-tag {
+    font-size: 11px;
+    color: var(--viola);
+    background: var(--viola-pale);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--gray-light);
+    font-size: 12px;
+  }
+  .card-year {
+    color: var(--gray);
+    font-weight: 600;
+  }
+  .card-link {
+    color: var(--viola);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: gap 0.2s;
+  }
+  .card-link.disabled {
+    color: var(--gray);
+    font-style: italic;
+    font-weight: 500;
+  }
+  /* card cliccabile = <a>, rimuovo underline e color inherit */
+  a.card-clickable {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  a.card-clickable:hover .card-link:not(.disabled) {
+    gap: 8px;
+  }
+  a.card-clickable:focus-visible {
+    outline: 3px solid var(--viola-med);
+    outline-offset: 2px;
+  }
+
+  /* No results */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--gray);
+  }
+  .empty h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: var(--viola-scuro);
+    margin-bottom: 8px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════ */
+  footer {
+    background: var(--viola-scuro);
+    color: var(--viola-light);
+    padding: 36px 48px;
+    font-size: 13px;
+  }
+  footer .inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer strong {
+    color: var(--white);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .topbar, .hero, .controls, main, footer { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 26px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .grid { grid-template-columns: 1fr; }
+    .topbar-meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TOPBAR
+     ═══════════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo" aria-label="Open Project">
+      <!-- Logo Open Project — SVG fedele: 2 rettangoli + OPENPROJECT + tagline -->
+      <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Open Project — we imagine we design we create">
+        <!-- Marchio: due rettangoli (uno pieno largo, uno alto stretto) -->
+        <rect x="0"  y="10" width="55" height="55" fill="#FFFFFF"/>
+        <rect x="65" y="10" width="20" height="80" fill="#FFFFFF"/>
+        <!-- Wordmark OPENPROJECT -->
+        <text x="115" y="65"
+              font-family="Arial Black, Arial, sans-serif"
+              font-weight="900" font-size="56"
+              fill="#FFFFFF" letter-spacing="-1">OPEN<tspan font-weight="400" letter-spacing="0">PROJECT</tspan></text>
+        <!-- Tagline -->
+        <text x="116" y="100"
+              font-family="Arial, sans-serif"
+              font-weight="400" font-size="17"
+              fill="#FFFFFF" letter-spacing="1.5">we imagine  we design  we create</text>
+      </svg>
+    </div>
+    <div class="topbar-meta">
+      <strong>Sistema di Gestione Parità di Genere</strong>
+      UNI/PdR 125:2022 · Fascia 1 · DNV
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-eyebrow">SGPG · Quadro Normativo</span>
+    <h1>Dashboard delle Norme di Riferimento</h1>
+    <p class="lead">
+      Quadro completo delle norme tecniche, leggi cogenti e fonti contrattuali che regolano il Sistema di Gestione della Parità di Genere di Open Project. Le norme sono mappate sulle 6 aree della UNI/PdR 125:2022 e sui processi del SGPG.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-lbl">Norme totali</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-cogenti">0</div>
+        <div class="stat-lbl">Cogenti</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-volontarie">0</div>
+        <div class="stat-lbl">Volontarie</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-lbl">Aree UNI/PdR 125</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CONTROLS
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="controls">
+  <div class="controls-row">
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Cerca per codice, titolo o argomento..." aria-label="Cerca">
+    </div>
+  </div>
+  <div class="controls-row" style="margin-top:16px;">
+    <div class="filter-chips" id="filters"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN
+     ═══════════════════════════════════════════════════════════════ -->
+<main>
+  <div class="results-meta">
+    Mostro <strong id="count">0</strong> norme · ordinate per gerarchia normativa
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">
+    <h3>Nessuna norma trovata</h3>
+    <p>Prova a modificare la ricerca o i filtri.</p>
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="inner">
+    <div>
+      <strong>Open Project S.r.l.</strong> · Bologna<br>
+      Comitato Guida SGPG · UNI/PdR 125:2022
+    </div>
+    <div style="text-align:right;">
+      Documento ad uso interno<br>
+      Aggiornato: maggio 2026
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATASET — Norme SGPG Open Project
+   tipo: cogente | volontaria | contrattuale | linea-guida
+   ═══════════════════════════════════════════════════════════════ */
+const NORME = [
+  // ─── Norme tecniche volontarie ──────────────────────────────
+  {
+    code: "UNI/PdR 125:2022",
+    title: "Linee guida sul sistema di gestione per la parità di genere",
+    desc: "Prassi di riferimento UNI che definisce i KPI e gli indicatori per la parità di genere in azienda. È la norma cardine del SGPG di Open Project (Fascia 1, certificazione DNV).",
+    type: "volontaria",
+    year: 2022,
+    areas: ["Cultura e Strategia", "Governance", "Processi HR", "Opportunità di crescita", "Equità remunerativa", "Tutela genitorialità"],
+    rank: 1,
+    url: "https://www.uni.com/prassi-di-riferimento/",
+    urlLabel: "Scheda UNI",
+  },
+  {
+    code: "ISO 30415:2021",
+    title: "Human resource management — Diversity and inclusion",
+    desc: "Standard internazionale per la gestione di diversità e inclusione nelle organizzazioni. Riferimento di benchmark per il SGPG.",
+    type: "linea-guida",
+    year: 2021,
+    areas: ["Cultura e Strategia", "Processi HR"],
+    rank: 4,
+    url: "https://www.iso.org/standard/71164.html",
+    urlLabel: "Scheda ISO",
+  },
+  {
+    code: "ISO 26000:2010",
+    title: "Guidance on social responsibility",
+    desc: "Linee guida per la responsabilità sociale d'impresa, con focus su diritti umani, pratiche di lavoro e questioni di genere.",
+    type: "linea-guida",
+    year: 2010,
+    areas: ["Cultura e Strategia"],
+    rank: 4,
+    url: "https://www.iso.org/iso-26000-social-responsibility.html",
+    urlLabel: "Scheda ISO",
+  },
+
+  // ─── Costituzione e leggi cogenti ─────────────────────────
+  {
+    code: "Costituzione Italiana",
+    title: "Artt. 3, 37, 51 — Principio di uguaglianza e parità",
+    desc: "Principi costituzionali fondamentali: pari dignità sociale (art. 3), parità donna lavoratrice (art. 37), accesso a uffici pubblici e cariche elettive (art. 51).",
+    type: "cogente",
+    year: 1948,
+    areas: ["Cultura e Strategia", "Governance"],
+    rank: 0,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:costituzione",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "D.Lgs. 198/2006",
+    title: "Codice delle pari opportunità tra uomo e donna",
+    desc: "Testo unico che disciplina la parità di trattamento e di opportunità nel lavoro, divieto di discriminazione, azioni positive e Consigliera di Parità. Aggiornato dalla L. 162/2021.",
+    type: "cogente",
+    year: 2006,
+    areas: ["Processi HR", "Equità remunerativa", "Opportunità di crescita"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2006-04-11;198",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "L. 162/2021",
+    title: "Modifiche al Codice pari opportunità — Certificazione di parità",
+    desc: "Introduce la certificazione della parità di genere (richiamando la UNI/PdR 125), il rapporto biennale obbligatorio per aziende > 50 dipendenti, e premialità per le imprese certificate (sgravi contributivi, punteggi nei bandi PA).",
+    type: "cogente",
+    year: 2021,
+    areas: ["Cultura e Strategia", "Governance", "Equità remunerativa"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2021-11-05;162",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "D.Lgs. 151/2001",
+    title: "Testo Unico maternità e paternità",
+    desc: "Disciplina i congedi di maternità, paternità, parentali, e tutele per la genitorialità nel rapporto di lavoro. Riferimento centrale per l'area 'Tutela della genitorialità' della UNI/PdR 125.",
+    type: "cogente",
+    year: 2001,
+    areas: ["Tutela genitorialità", "Processi HR"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2001-03-26;151",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "D.Lgs. 105/2022",
+    title: "Equilibrio vita-lavoro — Direttiva UE Work-Life Balance",
+    desc: "Recepimento della Direttiva UE 2019/1158: estensione congedo paternità (10 giorni obbligatori), congedi parentali più flessibili, diritto di richiedere modalità di lavoro flessibile per genitori e caregiver.",
+    type: "cogente",
+    year: 2022,
+    areas: ["Tutela genitorialità", "Processi HR"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2022-06-30;105",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "L. 81/2017",
+    title: "Lavoro agile (Smart Working)",
+    desc: "Disciplina il lavoro agile come strumento di conciliazione vita-lavoro. Tra i criteri di priorità per l'accesso: genitori con figli fino a 12 anni e caregiver familiari.",
+    type: "cogente",
+    year: 2017,
+    areas: ["Tutela genitorialità", "Processi HR"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2017-05-22;81",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "D.Lgs. 81/2008",
+    title: "Testo Unico Sicurezza sul Lavoro — Art. 28",
+    desc: "Obbligo di valutazione di tutti i rischi, inclusi quelli connessi alle differenze di genere, all'età e alla provenienza da altri Paesi (rischi 'gender-sensitive').",
+    type: "cogente",
+    year: 2008,
+    areas: ["Processi HR", "Tutela genitorialità"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2008-04-09;81",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "L. 4/2021",
+    title: "Equal pay — Modifiche al Codice pari opportunità",
+    desc: "Estende l'obbligo del rapporto biennale sulla situazione del personale alle aziende con più di 50 dipendenti (prima 100), rafforzando la trasparenza retributiva.",
+    type: "cogente",
+    year: 2021,
+    areas: ["Equità remunerativa"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2021-01-15;4",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "L. 215/2012",
+    title: "Quote di genere — Equilibrio nei CdA",
+    desc: "Norma sulle quote di genere negli organi di amministrazione e controllo delle società quotate e a controllo pubblico (il c.d. 'Golfo-Mosca').",
+    type: "cogente",
+    year: 2012,
+    areas: ["Governance"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2011-07-12;120",
+    urlLabel: "Normattiva",
+  },
+  {
+    code: "L. 53/2000",
+    title: "Disposizioni sui congedi e tempi di città",
+    desc: "Disciplina i congedi parentali, formativi e per eventi familiari, e promuove il riequilibrio dei tempi di vita e lavoro.",
+    type: "cogente",
+    year: 2000,
+    areas: ["Tutela genitorialità"],
+    rank: 1,
+    url: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2000-03-08;53",
+    urlLabel: "Normattiva",
+  },
+
+  // ─── Direttive UE ──────────────────────────────────────────
+  {
+    code: "Dir. UE 2023/970",
+    title: "Pay Transparency Directive",
+    desc: "Direttiva sulla trasparenza retributiva: obbligo di pubblicazione delle fasce salariali nelle offerte di lavoro, divieto di chiedere lo storico retributivo, reporting su gender pay gap. Recepimento entro giugno 2026.",
+    type: "cogente",
+    year: 2023,
+    areas: ["Equità remunerativa", "Processi HR"],
+    rank: 2,
+    url: "https://eur-lex.europa.eu/eli/dir/2023/970/oj",
+    urlLabel: "EUR-Lex",
+  },
+  {
+    code: "Dir. UE 2022/2381",
+    title: "Women on Boards",
+    desc: "Direttiva sull'equilibrio di genere tra gli amministratori delle società quotate: target del 40% del genere meno rappresentato fra i non-esecutivi entro giugno 2026.",
+    type: "cogente",
+    year: 2022,
+    areas: ["Governance"],
+    rank: 2,
+    url: "https://eur-lex.europa.eu/eli/dir/2022/2381/oj",
+    urlLabel: "EUR-Lex",
+  },
+  {
+    code: "Dir. UE 2019/1158",
+    title: "Work-Life Balance Directive",
+    desc: "Direttiva sull'equilibrio vita-lavoro per genitori e caregiver. Recepita in Italia con D.Lgs. 105/2022.",
+    type: "cogente",
+    year: 2019,
+    areas: ["Tutela genitorialità", "Processi HR"],
+    rank: 2,
+    url: "https://eur-lex.europa.eu/eli/dir/2019/1158/oj",
+    urlLabel: "EUR-Lex",
+  },
+
+  // ─── CCNL e fonti contrattuali ────────────────────────────
+  {
+    code: "CCNL Studi Professionali",
+    title: "Contratto Collettivo applicato da Open Project",
+    desc: "Disciplina inquadramenti, livelli retributivi, congedi, permessi, malattia, maternità/paternità per i dipendenti dello studio. Fonte contrattuale principale per i processi HR.",
+    type: "contrattuale",
+    year: 2024,
+    areas: ["Processi HR", "Equità remunerativa", "Tutela genitorialità"],
+    rank: 3,
+    url: "https://www.cnel.it/Archivio-Contratti",
+    urlLabel: "Archivio CNEL",
+  },
+  {
+    code: "Codice Etico Open Project",
+    title: "Documento interno — Principi e comportamenti",
+    desc: "Codice etico aziendale che richiama il rispetto della parità, la non discriminazione e il contrasto alle molestie. Integrato con la Politica SGPG (PGG-01).",
+    type: "contrattuale",
+    year: 2024,
+    areas: ["Cultura e Strategia", "Governance"],
+    rank: 3,
+    url: null,
+    urlLabel: "Documento interno",
+  },
+
+  // ─── Riferimenti internazionali ────────────────────────────
+  {
+    code: "CEDAW",
+    title: "Convenzione ONU contro le discriminazioni verso le donne",
+    desc: "Convenzione internazionale sull'eliminazione di ogni forma di discriminazione contro le donne (1979), ratificata dall'Italia. Riferimento di principio per le politiche di parità.",
+    type: "linea-guida",
+    year: 1979,
+    areas: ["Cultura e Strategia"],
+    rank: 4,
+    url: "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-elimination-all-forms-discrimination-against-women",
+    urlLabel: "OHCHR",
+  },
+  {
+    code: "Agenda 2030 — SDG 5",
+    title: "Obiettivo Sviluppo Sostenibile 5 — Parità di Genere",
+    desc: "Goal 5 dell'Agenda ONU 2030: raggiungere la parità di genere e l'empowerment di tutte le donne e ragazze. Riferimento per il reporting di sostenibilità.",
+    type: "linea-guida",
+    year: 2015,
+    areas: ["Cultura e Strategia"],
+    rank: 4,
+    url: "https://sdgs.un.org/goals/goal5",
+    urlLabel: "ONU SDG",
+  },
+  {
+    code: "Convenzione OIL 190",
+    title: "Eliminazione della violenza e molestie nel mondo del lavoro",
+    desc: "Convenzione ILO 190 (2019), ratificata dall'Italia con L. 4/2021. Riferimento per la prevenzione di violenza e molestie nei luoghi di lavoro.",
+    type: "cogente",
+    year: 2019,
+    areas: ["Cultura e Strategia", "Processi HR"],
+    rank: 2,
+    url: "https://www.ilo.org/dyn/normlex/en/f?p=NORMLEXPUB:12100:0::NO::P12100_ILO_CODE:C190",
+    urlLabel: "ILO",
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   FILTERS — definizione tipi
+   ═══════════════════════════════════════════════════════════════ */
+const FILTERS = [
+  { key: "all", label: "Tutte" },
+  { key: "cogente", label: "Cogenti" },
+  { key: "volontaria", label: "Volontarie" },
+  { key: "contrattuale", label: "Contrattuali" },
+  { key: "linea-guida", label: "Linee guida" },
+];
+
+const TYPE_LABEL = {
+  "cogente": "Cogente",
+  "volontaria": "Volontaria",
+  "contrattuale": "Contrattuale",
+  "linea-guida": "Linea guida",
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+let activeFilter = "all";
+let searchQuery = "";
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderFilters() {
+  const wrap = document.getElementById("filters");
+  wrap.innerHTML = FILTERS.map(f => {
+    const count = f.key === "all" ? NORME.length : NORME.filter(n => n.type === f.key).length;
+    return `<button class="chip ${f.key === activeFilter ? 'active' : ''}" data-filter="${f.key}">
+      ${f.label}<span class="count">${count}</span>
+    </button>`;
+  }).join("");
+  wrap.querySelectorAll(".chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeFilter = btn.dataset.filter;
+      renderFilters();
+      renderGrid();
+    });
+  });
+}
+
+function renderStats() {
+  document.getElementById("stat-total").textContent = NORME.length;
+  document.getElementById("stat-cogenti").textContent = NORME.filter(n => n.type === "cogente").length;
+  document.getElementById("stat-volontarie").textContent = NORME.filter(n => n.type === "volontaria").length;
+}
+
+function escape(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function renderGrid() {
+  const q = searchQuery.toLowerCase().trim();
+  let list = NORME.filter(n => {
+    if (activeFilter !== "all" && n.type !== activeFilter) return false;
+    if (q) {
+      const hay = (n.code + " " + n.title + " " + n.desc + " " + n.areas.join(" ")).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  // ordina per gerarchia normativa, poi per anno desc
+  list.sort((a, b) => a.rank - b.rank || b.year - a.year);
+
+  document.getElementById("count").textContent = list.length;
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+
+  if (list.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  grid.innerHTML = list.map(n => {
+    const cardInner = `
+      <div class="card-header">
+        <div class="card-code">${escape(n.code)}</div>
+        <span class="badge ${n.type}">${TYPE_LABEL[n.type]}</span>
+      </div>
+      <div class="card-title">${escape(n.title)}</div>
+      <div class="card-desc">${escape(n.desc)}</div>
+      <div class="card-areas">
+        ${n.areas.map(a => `<span class="area-tag">${escape(a)}</span>`).join("")}
+      </div>
+      <div class="card-footer">
+        <span class="card-year">${n.year}</span>
+        ${n.url
+          ? `<span class="card-link">${escape(n.urlLabel || "Apri")} →</span>`
+          : `<span class="card-link disabled">${escape(n.urlLabel || "—")}</span>`}
+      </div>`;
+    return n.url
+      ? `<a class="card card-clickable" href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${cardInner}</a>`
+      : `<article class="card">${cardInner}</article>`;
+  }).join("");
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EVENTS
+   ═══════════════════════════════════════════════════════════════ */
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value;
+  renderGrid();
+});
+
+/* INIT */
+renderStats();
+renderFilters();
+renderGrid();
+</script>
+</body>
+</html>
