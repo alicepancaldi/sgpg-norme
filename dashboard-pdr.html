@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SGPG UNI/PdR 125:2022 - Process Map</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --plan:#0f3b68; --do:#2d8fe2; --check:#d9dde3; --act:#55c5be;
+      --bg:#f7f9fc; --text:#1f2d3d; --card:#ffffff;
+      --shadow:0 10px 25px rgba(0,0,0,.08); --radius:18px; --line:#b8c4d6;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Inter',sans-serif;background:linear-gradient(180deg,#f8fbff,#eef3f8);color:var(--text);}
+    .wrapper{padding:30px;max-width:1800px;margin:auto;}
+    h1{text-align:center;margin-bottom:8px;font-size:2rem;color:var(--plan);}
+    .subtitle{text-align:center;margin-bottom:35px;color:#5d6b7a;}
+    .process-map{display:grid;grid-template-columns:260px repeat(4,1fr) 260px;gap:18px;align-items:start;}
+    .side-box,.column{background:white;border-radius:24px;box-shadow:var(--shadow);position:relative;}
+    .side-box{padding:24px;border:2px solid var(--line);}
+    .side-title{font-size:1.4rem;font-weight:800;margin-bottom:18px;text-align:center;}
+    .side-box ul{list-style:none;padding:0;margin:0;}
+    .side-box li{padding:12px 0;border-bottom:1px solid #eef2f7;display:flex;gap:10px;font-size:.95rem;}
+    .side-box li:last-child{border-bottom:none}
+    .column-header{padding:22px;color:white;font-weight:800;font-size:1.5rem;text-align:center;border-radius:24px 24px 0 0;}
+    .plan .column-header{background:var(--plan)} .do .column-header{background:var(--do)}
+    .check .column-header{background:#8f98a5} .act .column-header{background:var(--act)}
+    .cards{padding:18px;display:flex;flex-direction:column;gap:18px;}
+    .card{background:var(--card);border:2px solid #dfe7f2;border-radius:var(--radius);padding:18px;min-height:110px;cursor:pointer;transition:.3s;}
+    .card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(0,0,0,.12);border-color:#7fb4ff;}
+    .card i{font-style:normal;font-size:1.7rem;margin-bottom:12px;display:block;}
+    .card-title{font-weight:700;line-height:1.4;}
+    .arrow-down{text-align:center;font-size:1.6rem;color:#7c8da1;margin:-5px 0;}
+    .flow-arrow{position:absolute;top:50%;right:-15px;transform:translateY(-50%);font-size:2rem;color:#90a4bd;}
+    .cycle-line{margin-top:25px;display:flex;justify-content:center;}
+    .cycle-line span{padding:12px 20px;border:2px solid var(--plan);border-radius:999px;background:white;box-shadow:var(--shadow);font-weight:700;}
+    .modal{display:none;position:fixed;inset:0;background:rgba(15,27,45,.55);justify-content:center;align-items:center;padding:20px;z-index:999;}
+    .modal-content{background:white;max-width:700px;width:100%;padding:30px;border-radius:24px;}
+    .close{float:right;font-size:1.8rem;cursor:pointer;color:#7c8da1;}
+    @media(max-width:1400px){.process-map{grid-template-columns:1fr}.flow-arrow{display:none}}
+  </style>
+</head>
+<body>
+<div class="wrapper">
+<h1>Sistema di Gestione per la Parità di Genere (SGPG)</h1>
+<div class="subtitle">UNI/PdR 125:2022 – Open Project | Società di Ingegneria & Architettura</div>
+<div class="process-map">
+<div class="side-box"><div class="side-title">INPUT:<br>Esigenze Stakeholder & Contesto</div><ul>
+<li><i class="fas fa-building"></i> Clienti & Committenti</li><li><i class="fas fa-users"></i> Dipendenti & Collaboratori</li><li><i class="fas fa-handshake"></i> Partner & Fornitori</li><li><i class="fas fa-landmark"></i> Enti & Istituzioni</li><li><i class="fas fa-book"></i> Normative & Best Practice</li><li><i class="fas fa-globe"></i> Contesto Sociale & Culturale</li>
+</ul></div>
+
+<div class="column plan"><div class="column-header">PLAN<br><small>(Pianificare)</small></div><div class="cards">
+<div class="card" onclick="openModal('Governance & Comitato Guida','Definizione governance SGPG, ruoli, responsabilità, leadership inclusiva e presidio strategico.')"><i><i class="fas fa-sitemap"></i></i><div class="card-title">Governance & Comitato Guida</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Politica & Piano Strategico','Definizione policy, obiettivi misurabili, roadmap di miglioramento e allineamento UNI/PdR 125.')"><i><i class="fas fa-file-alt"></i></i><div class="card-title">Politica & Piano Strategico</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Analisi Rischi & Opportunità SGPG','Valutazione gap, rischi discriminatori, KPI di sviluppo e opportunità di crescita.')"><i><i class="fas fa-search"></i></i><div class="card-title">Analisi Rischi & Opportunità SGPG</div></div>
+</div><div class="flow-arrow">➜</div></div>
+
+<div class="column do"><div class="column-header">DO<br><small>(Fare)</small></div><div class="cards">
+<div class="card" onclick="openModal('Selezione & Onboarding Equo','Recruiting inclusivo, bias reduction, pari opportunità in ingresso e onboarding strutturato.')"><i><i class="fas fa-handshake"></i></i><div class="card-title">Selezione & Onboarding Equo</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Processi Operativi Equi & Organizzazione del Lavoro','Gestione organizzativa equa dei processi operativi, allocazione trasparente delle responsabilità, equilibrio professionale e pari opportunità nei flussi di lavoro.')"><i><i class="fas fa-drafting-compass"></i></i><div class="card-title">Processi Operativi Equi & Organizzazione del Lavoro</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Formazione & Sviluppo Carriera','Upskilling, mentoring, leadership femminile e percorsi di crescita.')"><i><i class="fas fa-graduation-cap"></i></i><div class="card-title">Formazione & Sviluppo Carriera</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Conciliazione & Genitorialità','Smart working, flessibilità, welfare e work-life balance.')"><i><i class="fas fa-home"></i></i><div class="card-title">Conciliazione & Genitorialità</div></div>
+</div><div class="flow-arrow">➜</div></div>
+
+<div class="column check"><div class="column-header">CHECK<br><small>(Verificare)</small></div><div class="cards">
+<div class="card" onclick="openModal('Monitoraggio KPI & Baseline HR','Rilevazione KPI gender gap, remunerazione, promozioni e retention.')"><i><i class="fas fa-chart-line"></i></i><div class="card-title">Monitoraggio KPI & Baseline HR</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Audit Interni SGPG','Verifica conformità, efficacia processi e audit periodici.')"><i><i class="fas fa-clipboard-check"></i></i><div class="card-title">Audit Interni SGPG</div></div>
+</div><div class="flow-arrow">➜</div></div>
+
+<div class="column act"><div class="column-header">ACT<br><small>(Agire)</small></div><div class="cards">
+<div class="card" onclick="openModal('Riesame della Direzione','Valutazione performance sistema e riesame strategico.')"><i><i class="fas fa-chess-board"></i></i><div class="card-title">Riesame della Direzione</div></div>
+<div class="arrow-down">↓</div>
+<div class="card" onclick="openModal('Azioni Correttive & Miglioramento','CAPA, miglioramento continuo e revisione target.')"><i><i class="fas fa-bullseye"></i></i><div class="card-title">Azioni Correttive & Miglioramento</div></div>
+</div></div>
+
+<div class="side-box"><div class="side-title">OUTPUT:<br>Parità Certificata & Miglioramento Clima</div><ul>
+<li><i class="fas fa-certificate"></i> Certificazione UNI/PdR 125:2022</li><li><i class="fas fa-user-check"></i> Clima Aziendale Migliore</li><li><i class="fas fa-chart-bar"></i> Performance Sostenibile</li><li><i class="fas fa-shield-alt"></i> Reputazione & Attrattività</li>
+</ul></div>
+</div>
+<div class="cycle-line"><span>ACT ➜ PLAN | Ciclo di Miglioramento Continuo</span></div>
+</div>
+
+<div id="modal" class="modal" onclick="closeModal(event)">
+<div class="modal-content">
+<span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+<h2 id="modalTitle"></h2><p id="modalText"></p>
+</div></div>
+
+<script>
+function openModal(title,text){document.getElementById('modalTitle').innerText=title;document.getElementById('modalText').innerText=text;document.getElementById('modal').style.display='flex';}
+function closeModal(e){if(e.target.id==='modal'){document.getElementById('modal').style.display='none';}}
+</script>
+</body></html>
