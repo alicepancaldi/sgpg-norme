@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOD-VAL-02 — Scheda Valutazione Collaboratori P.IVA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --blu: #1a3a5c;
+    --blu-medio: #2e6da4;
+    --blu-chiaro: #e8f1f9;
+    --verde: #2d7a4f;
+    --verde-chiaro: #e8f5ee;
+    --arancio: #c06c1a;
+    --arancio-chiaro: #fef3e8;
+    --grigio: #6b7280;
+    --grigio-chiaro: #f4f6f8;
+    --bordo: #d1dce8;
+    --testo: #1e2a38;
+    --bianco: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--testo);
+    background: var(--grigio-chiaro);
+    line-height: 1.5;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; background: var(--bianco); border: 1px solid var(--bordo); }
+
+  .header {
+    background: var(--blu);
+    color: white;
+    padding: 18px 24px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .doc-title { font-family: 'DM Serif Display', serif; font-size: 17px; font-weight: 400; margin-bottom: 3px; }
+  .doc-sub { font-size: 10px; opacity: 0.7; letter-spacing: 0.5px; text-transform: uppercase; }
+  .badge {
+    display: inline-block;
+    background: rgba(192,108,26,0.3);
+    border: 1px solid rgba(192,108,26,0.5);
+    border-radius: 3px;
+    padding: 2px 7px;
+    font-size: 10px;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .header-right { font-size: 11px; opacity: 0.8; white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .header-right label { font-size: 10px; opacity: 0.7; }
+  .header-select { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); border-radius: 3px; color: white; font-size: 12px; padding: 3px 6px; cursor: pointer; }
+  .header-select option { color: #1e2a38; background: white; }
+  .header-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.4); color: white; font-size: 11px; width: 100px; text-align: right; }
+  .header-input::placeholder { color: rgba(255,255,255,0.5); }
+
+  .section { padding: 14px 24px; border-bottom: 1px solid var(--bordo); }
+  .section:last-child { border-bottom: none; }
+  .section-title { font-size: 10px; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: var(--blu-medio); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid var(--blu-chiaro); }
+
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 10px; font-weight: 600; color: var(--grigio); letter-spacing: 0.4px; text-transform: uppercase; }
+  .field input, .field select, .field textarea { border: 1px solid var(--bordo); border-radius: 3px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--testo); background: var(--bianco); width: 100%; transition: border-color 0.15s; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blu-medio); background: var(--blu-chiaro); }
+  .field textarea { resize: vertical; min-height: 52px; }
+
+  .nota-piva { background: var(--arancio-chiaro); border-left: 3px solid var(--arancio); padding: 7px 11px; font-size: 11px; color: #6b3610; margin-bottom: 10px; border-radius: 0 3px 3px 0; }
+  .nota-genere { background: var(--verde-chiaro); border-left: 3px solid var(--verde); padding: 7px 11px; font-size: 11px; color: #1e4733; margin-bottom: 10px; border-radius: 0 3px 3px 0; }
+
+  .legenda { display: flex; flex-wrap: wrap; gap: 12px; padding: 7px 10px; background: var(--blu-chiaro); border-radius: 3px; margin-bottom: 10px; font-size: 10px; color: var(--grigio); }
+  .legenda strong { color: var(--testo); }
+
+  .val-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .val-table th { background: var(--blu); color: white; font-size: 10px; font-weight: 500; padding: 7px 8px; text-align: left; }
+  .val-table td { padding: 7px 8px; font-size: 12px; border-bottom: 1px solid var(--bordo); vertical-align: middle; }
+  .val-table tr:nth-child(even) td { background: var(--grigio-chiaro); }
+  .val-table td.criterio { font-weight: 500; width: 28%; }
+  .val-table td.descrizione { color: var(--grigio); font-size: 11px; width: 32%; }
+  .val-table td.punteggio { width: 22%; }
+  .val-table td.note-td { width: 18%; }
+
+  .scala { display: flex; gap: 5px; }
+  .scala label { cursor: pointer; }
+  .scala input[type="radio"] { display: none; }
+  .scala .dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--bordo); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--grigio); transition: all 0.15s; background: white; user-select: none; }
+  .scala input[type="radio"]:checked + .dot { border-color: var(--blu-medio); background: var(--blu-medio); color: white; }
+  .scala label:hover .dot { border-color: var(--blu-medio); color: var(--blu-medio); }
+
+  .punteggio-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--blu-chiaro); border-radius: 3px; margin-top: 10px; flex-wrap: wrap; }
+  .punteggio-label { font-size: 11px; font-weight: 600; color: var(--blu); }
+  .punteggio-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--blu); min-width: 36px; }
+  .punteggio-max { font-size: 11px; color: var(--grigio); }
+  .fascia { margin-left: auto; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .fascia.ottimo { background: #d4edda; color: #155724; }
+  .fascia.buono { background: #d1ecf1; color: #0c5460; }
+  .fascia.adeguato { background: #fff3cd; color: #856404; }
+  .fascia.miglioramento { background: #f8d7da; color: #721c24; }
+
+  .commento-box { background: var(--grigio-chiaro); border: 1px solid var(--bordo); border-radius: 3px; padding: 9px; margin-bottom: 8px; }
+  .commento-box label { display: block; font-size: 10px; font-weight: 600; color: var(--grigio); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+  .commento-box textarea { width: 100%; border: 1px solid var(--bordo); border-radius: 3px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; resize: vertical; min-height: 48px; background: white; }
+  .commento-box textarea:focus { outline: none; border-color: var(--blu-medio); }
+
+  .invio-section { padding: 14px 24px; background: var(--grigio-chiaro); border-top: 2px solid var(--bordo); }
+  .dichiarazione { font-size: 11px; color: var(--grigio); font-style: italic; margin-bottom: 12px; line-height: 1.6; padding: 10px 12px; background: white; border: 1px solid var(--bordo); border-radius: 3px; }
+  .dichiarazione strong { color: var(--testo); font-style: normal; }
+
+  .invio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .invio-grid { grid-template-columns: 1fr; } }
+
+  .btn-invia { display: block; width: 100%; padding: 11px; background: var(--blu); color: white; border: none; border-radius: 3px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: background 0.15s; }
+  .btn-invia:hover { background: var(--blu-medio); }
+  .btn-invia:disabled { background: var(--grigio); cursor: not-allowed; }
+
+  .msg-invio { display: none; margin-top: 10px; padding: 10px 14px; background: var(--verde-chiaro); border: 1px solid var(--verde); border-radius: 3px; font-size: 12px; color: #1e4733; text-align: center; }
+  .msg-errore { display: none; margin-top: 10px; padding: 10px 14px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 3px; font-size: 12px; color: #721c24; text-align: center; }
+
+  .footer { background: var(--blu); color: rgba(255,255,255,0.45); font-size: 9px; padding: 7px 24px; display: flex; justify-content: space-between; letter-spacing: 0.3px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="badge">MOD-VAL-02 · P.IVA</div>
+      <div class="doc-title">Scheda di Valutazione Collaboratori P.IVA</div>
+      <div class="doc-sub">Collaboratori Continuativi · UNI/PdR 125:2022 · Open Project S.r.l.</div>
+    </div>
+    <div class="header-right">
+      <div>
+        <label>Anno di riferimento</label><br>
+        <select class="header-select" id="anno">
+          <option value="">— anno —</option>
+          <option value="2024">2024</option>
+          <option value="2025" selected>2025</option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+      </div>
+      <div>
+        <label>Data compilazione</label><br>
+        <input class="header-input" type="date" id="data_compilazione">
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. ANAGRAFICA -->
+  <div class="section">
+    <div class="section-title">1 — Dati del Collaboratore / Collaboratrice</div>
+    <div class="nota-piva">
+      ℹ Modulo applicabile ai collaboratori P.IVA continuativi attivi per almeno 6 mesi nell'anno di riferimento. Rilevante ai fini del KPI 1 Area 4 UNI/PdR 125:2022. (PGG-04 §3)
+    </div>
+    <div class="nota-genere">
+      ⚠ Valutazione condotta con criteri oggettivi e non discriminatori. Il genere non costituisce mai criterio di giudizio. (PGG-08 §3.1)
+    </div>
+    <div class="grid-3" style="margin-bottom:10px;">
+      <div class="field">
+        <label>Cognome e Nome</label>
+        <input type="text" id="nome" placeholder="...">
+      </div>
+      <div class="field">
+        <label>Ruolo / Specializzazione</label>
+        <input type="text" id="ruolo" placeholder="Es. Strutturista, Architetto, CSE...">
+      </div>
+      <div class="field">
+        <label>Genere</label>
+        <select id="genere">
+          <option value="">— seleziona —</option>
+          <option>F</option>
+          <option>M</option>
+          <option>Non binario / Altro</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label>Referente interno</label>
+        <input type="text" id="referente" placeholder="...">
+      </div>
+      <div class="field">
+        <label>Mesi di collaborazione nell'anno</label>
+        <select id="mesi">
+          <option value="">— seleziona —</option>
+          <option>6 mesi</option><option>7 mesi</option><option>8 mesi</option>
+          <option>9 mesi</option><option>10 mesi</option><option>11 mesi</option>
+          <option>12 mesi (tutto l'anno)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>N° incarichi nell'anno</label>
+        <input type="text" id="incarichi" placeholder="Es. 3 incarichi">
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. VALUTAZIONE -->
+  <div class="section">
+    <div class="section-title">2 — Valutazione della Collaborazione</div>
+    <div class="legenda">
+      <span><strong>1</strong> – Non adeguato</span>
+      <span><strong>2</strong> – In sviluppo</span>
+      <span><strong>3</strong> – Adeguato</span>
+      <span><strong>4</strong> – Buono</span>
+      <span><strong>5</strong> – Eccellente</span>
+    </div>
+    <table class="val-table">
+      <thead>
+        <tr>
+          <th style="width:28%;">Criterio</th>
+          <th style="width:32%;">Descrizione</th>
+          <th style="width:22%;">Punteggio</th>
+          <th style="width:18%;">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="criterio">Qualità tecnica</td>
+          <td class="descrizione">Standard e accuratezza degli elaborati consegnati</td>
+          <td class="punteggio"><div class="scala">
+            <label><input type="radio" name="p1" value="1" onchange="calcolaPiva()"><div class="dot">1</div></label>
+            <label><input type="radio" name="p1" value="2" onchange="calcolaPiva()"><div class="dot">2</div></label>
+            <label><input type="radio" name="p1" value="3" onchange="calcolaPiva()"><div class="dot">3</div></label>
+            <label><input type="radio" name="p1" value="4" onchange="calcolaPiva()"><div class="dot">4</div></label>
+            <label><input type="radio" name="p1" value="5" onchange="calcolaPiva()"><div class="dot">5</div></label>
+          </div></td>
+          <td class="note-td"><input type="text" id="note_p1" style="border:none;width:100%;font-size:11px;background:transparent;" placeholder="Note..."></td>
+        </tr>
+        <tr>
+          <td class="criterio">Rispetto delle scadenze</td>
+          <td class="descrizione">Puntualità nelle consegne concordate</td>
+          <td class="punteggio"><div class="scala">
+            <label><input type="radio" name="p2" value="1" onchange="calcolaPiva()"><div class="dot">1</div></label>
+            <label><input type="radio" name="p2" value="2" onchange="calcolaPiva()"><div class="dot">2</div></label>
+            <label><input type="radio" name="p2" value="3" onchange="calcolaPiva()"><div class="dot">3</div></label>
+            <label><input type="radio" name="p2" value="4" onchange="calcolaPiva()"><div class="dot">4</div></label>
+            <label><input type="radio" name="p2" value="5" onchange="calcolaPiva()"><div class="dot">5</div></label>
+          </div></td>
+          <td class="note-td"><input type="text" id="note_p2" style="border:none;width:100%;font-size:11px;background:transparent;" placeholder="Note..."></td>
+        </tr>
+        <tr>
+          <td class="criterio">Integrazione nel team</td>
+          <td class="descrizione">Collaborazione con i colleghi dello studio, comunicazione</td>
+          <td class="punteggio"><div class="scala">
+            <label><input type="radio" name="p3" value="1" onchange="calcolaPiva()"><div class="dot">1</div></label>
+            <label><input type="radio" name="p3" value="2" onchange="calcolaPiva()"><div class="dot">2</div></label>
+            <label><input type="radio" name="p3" value="3" onchange="calcolaPiva()"><div class="dot">3</div></label>
+            <label><input type="radio" name="p3" value="4" onchange="calcolaPiva()"><div class="dot">4</div></label>
+            <label><input type="radio" name="p3" value="5" onchange="calcolaPiva()"><div class="dot">5</div></label>
+          </div></td>
+          <td class="note-td"><input type="text" id="note_p3" style="border:none;width:100%;font-size:11px;background:transparent;" placeholder="Note..."></td>
+        </tr>
+        <tr>
+          <td class="criterio">Autonomia e proattività</td>
+          <td class="descrizione">Capacità di gestire il proprio lavoro in autonomia</td>
+          <td class="punteggio"><div class="scala">
+            <label><input type="radio" name="p4" value="1" onchange="calcolaPiva()"><div class="dot">1</div></label>
+            <label><input type="radio" name="p4" value="2" onchange="calcolaPiva()"><div class="dot">2</div></label>
+            <label><input type="radio" name="p4" value="3" onchange="calcolaPiva()"><div class="dot">3</div></label>
+            <label><input type="radio" name="p4" value="4" onchange="calcolaPiva()"><div class="dot">4</div></label>
+            <label><input type="radio" name="p4" value="5" onchange="calcolaPiva()"><div class="dot">5</div></label>
+          </div></td>
+          <td class="note-td"><input type="text" id="note_p4" style="border:none;width:100%;font-size:11px;background:transparent;" placeholder="Note..."></td>
+        </tr>
+        <tr>
+          <td class="criterio">Aggiornamento tecnico</td>
+          <td class="descrizione">Competenze tecniche aggiornate rispetto al ruolo e al settore</td>
+          <td class="punteggio"><div class="scala">
+            <label><input type="radio" name="p5" value="1" onchange="calcolaPiva()"><div class="dot">1</div></label>
+            <label><input type="radio" name="p5" value="2" onchange="calcolaPiva()"><div class="dot">2</div></label>
+            <label><input type="radio" name="p5" value="3" onchange="calcolaPiva()"><div class="dot">3</div></label>
+            <label><input type="radio" name="p5" value="4" onchange="calcolaPiva()"><div class="dot">4</div></label>
+            <label><input type="radio" name="p5" value="5" onchange="calcolaPiva()"><div class="dot">5</div></label>
+          </div></td>
+          <td class="note-td"><input type="text" id="note_p5" style="border:none;width:100%;font-size:11px;background:transparent;" placeholder="Note..."></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="punteggio-bar">
+      <span class="punteggio-label">Punteggio totale:</span>
+      <span class="punteggio-value" id="tot-score-piva">—</span>
+      <span class="punteggio-max">/ 25</span>
+      <span class="fascia" id="fascia-badge-piva">—</span>
+    </div>
+  </div>
+
+  <!-- 3. PROSPETTIVE -->
+  <div class="section">
+    <div class="section-title">3 — Prospettive e Obiettivi per la Collaborazione</div>
+    <p style="font-size:11px;margin-bottom:10px;color:var(--grigio);">
+      Aree di sviluppo e aspettative condivise per i prossimi incarichi, concordate tra referente interno e collaboratore/collaboratrice.
+    </p>
+    <div class="commento-box" style="margin-bottom:0;">
+      <label>Obiettivi qualitativi per i prossimi incarichi</label>
+      <textarea id="obiettivi" placeholder="Es. maggiore autonomia nella gestione delle varianti, approfondimento normativa sismica..."></textarea>
+    </div>
+  </div>
+
+  <!-- 4. NOTE -->
+  <div class="section">
+    <div class="section-title">4 — Note</div>
+    <div class="commento-box">
+      <label>Punti di forza della collaborazione</label>
+      <textarea id="punti_forza" placeholder="..."></textarea>
+    </div>
+    <div class="commento-box">
+      <label>Aree di miglioramento</label>
+      <textarea id="aree_miglioramento" placeholder="..."></textarea>
+    </div>
+  </div>
+
+  <!-- 5. INVIO -->
+  <div class="invio-section">
+    <div class="dichiarazione">
+      <strong>Dichiarazione di trasmissione:</strong> L'invio del presente modulo costituisce trasmissione formale della scheda di valutazione al Sistema di Gestione per la Parità di Genere di Open Project S.r.l. ai sensi della UNI/PdR 125:2022. I dati saranno archiviati nel registro SGPG e trattati nel rispetto del Regolamento UE 2016/679 (GDPR). Il collaboratore / la collaboratrice ha diritto di accesso ai propri dati rivolgendosi al Comitato Guida.
+    </div>
+    <button class="btn-invia" id="btn-invia" onclick="invia()">
+      ✉ Invia e Archivia Scheda
+    </button>
+    <div class="msg-invio" id="msg-ok">
+      ✓ Scheda inviata correttamente. Una copia è stata inviata agli indirizzi indicati e archiviata nel registro SGPG.
+    </div>
+    <div class="msg-errore" id="msg-err">
+      ⚠ Compilare i campi obbligatori: Nome, Ruolo, Genere, Referente e tutti i criteri di valutazione.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Open Project S.r.l. · MOD-VAL-02 Rev. 2.0 · SGPG UNI/PdR 125:2022</span>
+    <span>Documento riservato — archiviato nel fascicolo collaboratore</span>
+  </div>
+
+</div>
+
+<!-- Libreria per generare il PDF lato browser -->
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.14.0/dist/html2pdf.bundle.min.js"></script>
+<script>
+
+const PIVA_IDS = ['p1','p2','p3','p4','p5'];
+function calcolaPiva() {
+  let tot = 0, n = 0;
+  PIVA_IDS.forEach(id => {
+    const sel = document.querySelector('input[name="'+id+'"]:checked');
+    if(sel) { tot += parseInt(sel.value); n++; }
+  });
+  const el = document.getElementById('tot-score-piva');
+  const fb = document.getElementById('fascia-badge-piva');
+  if(n === PIVA_IDS.length) {
+    el.textContent = tot;
+    if(tot >= 22)      { fb.textContent='Ottimo';        fb.className='fascia ottimo'; }
+    else if(tot >= 17) { fb.textContent='Buono';         fb.className='fascia buono'; }
+    else if(tot >= 12) { fb.textContent='Adeguato';      fb.className='fascia adeguato'; }
+    else               { fb.textContent='Da migliorare'; fb.className='fascia miglioramento'; }
+  } else {
+    el.textContent = n > 0 ? tot+'*' : '—';
+    fb.textContent = n > 0 ? n+'/'+PIVA_IDS.length+' criteri' : '—';
+    fb.className = 'fascia';
+  }
+}
+
+const PIVA_NOMI = {
+  p1:'Qualità tecnica', p2:'Rispetto delle scadenze',
+  p3:'Integrazione nel team', p4:'Autonomia e proattività',
+  p5:'Aggiornamento tecnico'
+};
+function raccogliDati() {
+  const punteggi = {};
+  let totPunt = 0;
+  PIVA_IDS.forEach(id => {
+    const sel = document.querySelector('input[name="'+id+'"]:checked');
+    const nome = PIVA_NOMI[id];
+    punteggi[nome] = sel ? parseInt(sel.value) : null;
+    punteggi[nome+'_note'] = document.getElementById('note_'+id).value;
+    if(sel) totPunt += parseInt(sel.value);
+  });
+  return {
+    modulo: 'MOD-VAL-02', tipo: 'P.IVA',
+    anno: document.getElementById('anno').value,
+    data_compilazione: document.getElementById('data_compilazione').value,
+    timestamp: new Date().toISOString(),
+    nome: document.getElementById('nome').value,
+    ruolo: document.getElementById('ruolo').value,
+    genere: document.getElementById('genere').value,
+    referente: document.getElementById('referente').value,
+    mesi: document.getElementById('mesi').value,
+    incarichi: document.getElementById('incarichi').value,
+    ...punteggi,
+    punteggio_totale: totPunt,
+    punteggio_max: 25,
+    fascia: document.getElementById('fascia-badge-piva').textContent,
+    obiettivi: document.getElementById('obiettivi').value,
+    punti_forza: document.getElementById('punti_forza').value,
+    aree_miglioramento: document.getElementById('aree_miglioramento').value,
+    
+  };
+}
+
+function valida() {
+  const d = raccogliDati();
+  if(!d.nome || !d.ruolo || !d.genere || !d.referente) return false;
+  return PIVA_IDS.every(id => document.querySelector('input[name="'+id+'"]:checked'));
+}
+
+const POWER_AUTOMATE_URL = 'INSERIRE_URL_POWER_AUTOMATE_QUI';
+
+// ─── NOME FILE: Cognome_Scheda_Anno.pdf ───
+function _slug(s){
+  return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+}
+function _nomeFile(){
+  const nc = (document.getElementById('nome').value || '').trim();
+  const parti = nc.split(/\s+/).filter(Boolean);
+  const cognome = parti.length ? parti[parti.length-1] : 'scheda';
+  const anno = (document.getElementById('anno').value || '').trim() || new Date().getFullYear();
+  return _slug(cognome) + '_Scheda_' + _slug(anno) + '.pdf';
+}
+
+// ─── GENERAZIONE PDF (lato browser) ───
+async function _generaPdfBase64(){
+  if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(e){} }
+  const page  = document.querySelector('.page');
+  const invio = document.querySelector('.invio-section');
+  const prev  = invio ? invio.style.display : null;
+  if (invio) invio.style.display = 'none';
+  const opt = {
+    margin: [8,8,8,8],
+    filename: 'scheda.pdf',
+    image: { type:'jpeg', quality:0.98 },
+    html2canvas: { scale:2, useCORS:true, backgroundColor:'#ffffff' },
+    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' },
+    pagebreak: { mode:['css','legacy'] }
+  };
+  try {
+    const dataUri = await html2pdf().set(opt).from(page).outputPdf('datauristring');
+    return dataUri.split(',')[1];
+  } finally {
+    if (invio) invio.style.display = prev;
+  }
+}
+
+// ─── INVIO + ARCHIVIAZIONE ───
+async function invia() {
+  document.getElementById('msg-ok').style.display = 'none';
+  document.getElementById('msg-err').style.display = 'none';
+  if(!valida()) { document.getElementById('msg-err').style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-invia');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generazione PDF...';
+
+  try {
+    const pdf = await _generaPdfBase64();
+    const payload = { filename: _nomeFile(), pdf: pdf, dati: raccogliDati() };
+
+    if(POWER_AUTOMATE_URL === 'INSERIRE_URL_POWER_AUTOMATE_QUI') {
+      const a = document.createElement('a');
+      a.href = 'data:application/pdf;base64,' + pdf;
+      a.download = payload.filename;
+      a.click();
+      btn.textContent = '✓ PDF generato (test locale)';
+      document.getElementById('msg-ok').style.display = 'block';
+      console.log('Nome file:', payload.filename);
+      return;
+    }
+
+    btn.textContent = '⏳ Invio in corso...';
+    await fetch(POWER_AUTOMATE_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    btn.textContent = '✓ Inviato';
+    document.getElementById('msg-ok').style.display = 'block';
+
+  } catch(e) {
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = '✉ Invia e Archivia Scheda';
+    document.getElementById('msg-err').innerHTML = '⚠ Errore nella generazione o nell\'invio del PDF. Riprovare.';
+    document.getElementById('msg-err').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
