@@ -419,7 +419,7 @@
         <select class="header-select" id="anno">
           <option value="">— anno —</option>
           <option value="2024">2024</option>
-          <option value="2025" selected>2025</option>
+          <option value="2025">2025</option>
           <option value="2026">2026</option>
           <option value="2027">2027</option>
           <option value="2028">2028</option>
@@ -688,7 +688,7 @@
       ✉ Invia e Archivia Scheda
     </button>
     <div class="msg-invio" id="msg-ok">
-      ✓ Scheda inviata correttamente. Una copia è stata inviata agli indirizzi indicati e archiviata nel registro SGPG.
+      ✓ Scheda completata.
     </div>
     <div class="msg-errore" id="msg-err">
       ⚠ Compilare i campi obbligatori: Nome, Livello, Genere, Valutatore e tutti i criteri di valutazione.
@@ -696,7 +696,7 @@
   </div>
 
   <div class="footer">
-    <span>Open Project S.r.l. · MOD-VAL-01 Rev. 2.0 · SGPG UNI/PdR 125:2022</span>
+    <span>Open Project S.r.l. · MOD-VAL-01 Rev. 2.1 · SGPG UNI/PdR 125:2022</span>
     <span>Documento riservato — archiviato nel fascicolo personale</span>
   </div>
 
@@ -805,17 +805,16 @@ function valida() {
 // Sostituire l'URL qui sotto con l'URL del flusso HTTP trigger di Power Automate
 const POWER_AUTOMATE_URL = 'INSERIRE_URL_POWER_AUTOMATE_QUI';
 
-// ─── NOME FILE: Cognome_Scheda_Anno.pdf ───
+// ─── NOME FILE: Cognome_Nome_Scheda_Anno.pdf (es. Rossi_Mario_Scheda_2026.pdf) ───
 function _slug(s){
   return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
 }
 function _nomeFile(){
   const nc = (document.getElementById('nome').value || '').trim();
-  const parti = nc.split(/\s+/).filter(Boolean);
-  const cognome = parti.length ? parti[parti.length-1] : 'scheda';
+  const cognomeNome = nc || 'scheda';
   const anno = (document.getElementById('anno').value || '').trim() || new Date().getFullYear();
-  return _slug(cognome) + '_Scheda_' + _slug(anno) + '.pdf';
+  return _slug(cognomeNome) + '_Scheda_' + _slug(anno) + '.pdf';
 }
 
 // ─── GENERAZIONE PDF (lato browser) ───
@@ -845,7 +844,10 @@ async function _generaPdfBase64(){
 // ─── INVIO + ARCHIVIAZIONE ───
 async function invia() {
   document.getElementById('msg-ok').style.display = 'none';
-  document.getElementById('msg-err').style.display = 'none';
+  const _err = document.getElementById('msg-err');
+  if (!_err.dataset.base) _err.dataset.base = _err.textContent.trim();
+  _err.textContent = _err.dataset.base;
+  _err.style.display = 'none';
 
   if(!valida()) {
     document.getElementById('msg-err').style.display = 'block';
@@ -866,7 +868,8 @@ async function invia() {
       a.href = 'data:application/pdf;base64,' + pdf;
       a.download = payload.filename;
       a.click();
-      btn.textContent = '✓ PDF generato (test locale)';
+      btn.textContent = '✓ PDF generato';
+      document.getElementById('msg-ok').textContent = '✓ Scheda completata. Il file ' + payload.filename + ' è stato salvato nella cartella Download del computer: archiviarlo nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.';
       document.getElementById('msg-ok').style.display = 'block';
       console.log('Nome file:', payload.filename);
       return;
@@ -882,16 +885,215 @@ async function invia() {
     });
     // Risposta opaca (no-cors): conferma ottimistica
     btn.textContent = '✓ Inviato';
+    document.getElementById('msg-ok').textContent = '✓ Scheda inviata. Il file ' + payload.filename + ' viene archiviato nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.';
     document.getElementById('msg-ok').style.display = 'block';
 
   } catch(e) {
     console.error(e);
     btn.disabled = false;
     btn.textContent = '✉ Invia e Archivia Scheda';
-    document.getElementById('msg-err').innerHTML = '⚠ Errore: ' + (e && e.message ? e.message : e) + ' — riprovare o segnalare questo messaggio.';
+    document.getElementById('msg-err').textContent = '⚠ Errore: ' + (e && e.message ? e.message : e) + ' — riprovare o segnalare questo messaggio.';
     document.getElementById('msg-err').style.display = 'block';
   }
 }
 </script>
+<!-- ═══ SALVA MODIFICHE / BOZZE (salvataggio nel browser) ═══ -->
+<style>
+  .bozze-bar {
+    max-width: 860px; margin: 0 auto 10px; padding: 10px 14px;
+    background: #fff8e6; border: 1px solid #e0b84a; border-radius: 3px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5c4510;
+    display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .bozze-bar strong { font-weight: 600; }
+  .bozze-bar select {
+    flex: 1; min-width: 220px; padding: 5px 8px; font-family: inherit; font-size: 12px;
+    border: 1px solid #d9c27a; border-radius: 3px; background: #fff;
+  }
+  .bozze-bar button {
+    padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 600;
+    border-radius: 3px; cursor: pointer; border: 1px solid var(--blu);
+  }
+  .bozze-bar .b-riprendi { background: var(--blu); color: #fff; }
+  .bozze-bar .b-elimina  { background: #fff; color: var(--blu); }
+  .btn-salva {
+    display: block; width: 100%; padding: 10px; margin-bottom: 8px;
+    background: #fff; color: var(--blu); border: 1.5px solid var(--blu); border-radius: 3px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-salva:hover { background: var(--blu-chiaro); }
+  .btn-salva-sub { font-weight: 400; font-size: 11px; opacity: 0.8; }
+  .msg-bozza {
+    display: none; margin: -2px 0 10px; padding: 8px 12px; font-size: 12px; text-align: center;
+    background: var(--blu-chiaro); border: 1px solid var(--blu-medio); border-radius: 3px; color: var(--blu);
+  }
+  .msg-bozza.err { background: #fdecea; border-color: #c0392b; color: #8e1f14; }
+  @media print { .bozze-bar, .btn-salva, .msg-bozza { display: none !important; } }
+</style>
+<script>
+(function(){
+  const MODULO = (document.querySelector('.badge')?.textContent || 'MOD').trim().split(/\s/)[0];
+  const KEY = 'sgpg_bozze_' + MODULO;
+  const RADIO_NAMES = [...new Set([...document.querySelectorAll('.page input[type=radio]')].map(r => r.name))];
+  // anno di riferimento proposto = anno corrente; il periodo suggerito segue l'anno scelto
+  (function(){
+    const a = document.getElementById('anno'), per = document.getElementById('periodo');
+    const y = String(new Date().getFullYear());
+    if (a && !a.value && [...a.options].some(o => o.value === y)) a.value = y;
+    const segui = () => { if (per && a && a.value) per.placeholder = '01/01/' + a.value + ' – 31/12/' + a.value; };
+    if (a) a.addEventListener('change', segui); segui();
+  })();
+  let modificato = false;
+  let bozzaCorrente = null;   // id della bozza caricata/salvata nella sessione
+
+  // ── storage ──
+  function leggi(){ try { const o = JSON.parse(localStorage.getItem(KEY) || '{}'); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; } catch(e){ return {}; } }
+  function scrivi(b){ localStorage.setItem(KEY, JSON.stringify(b)); }
+  function idBozza(nome, anno){ return (nome||'').trim().toLowerCase().replace(/\s+/g,' ') + '|' + (anno||''); }
+
+  // ── raccolta / ripristino campi ──
+  function campi(){ return [...document.querySelectorAll('.page input[id], .page select[id], .page textarea[id]')]
+                           .filter(el => el.type !== 'radio'); }
+  function istantanea(){
+    const v = {}, r = {};
+    campi().forEach(el => v[el.id] = el.value);
+    RADIO_NAMES.forEach(n => { const s = document.querySelector('input[name="'+n+'"]:checked'); r[n] = s ? s.value : null; });
+    return { valori: v, radio: r };
+  }
+  function ripristina(d){
+    const val = (d && typeof d.valori === 'object' && d.valori) || {}, rad = (d && typeof d.radio === 'object' && d.radio) || {};
+    campi().forEach(el => { if (Object.prototype.hasOwnProperty.call(val, el.id)) el.value = String(val[el.id] ?? ''); });
+    RADIO_NAMES.forEach(n => {
+      document.querySelectorAll('input[name="'+n+'"]').forEach(x => x.checked = (x.value === String(rad[n])));
+    });
+    if (typeof calcola === 'function') calcola();
+    if (typeof calcolaPiva === 'function') calcolaPiva();
+    modificato = false;
+  }
+
+  // ── messaggi ──
+  function msg(testo, errore){
+    const m = document.getElementById('msg-bozza');
+    m.textContent = testo; m.className = 'msg-bozza' + (errore ? ' err' : ''); m.style.display = 'block';
+  }
+
+  // ── barra bozze (fuori da .page → non entra nel PDF) ──
+  function aggiornaBarra(selId){
+    const b = leggi(), ids = Object.keys(b).sort((a,c) => (b[c].salvato||'').localeCompare(b[a].salvato||''));
+    const bar = document.getElementById('bozze-bar'), sel = document.getElementById('bozze-sel');
+    if (!ids.length){ bar.style.display = 'none'; return; }
+    sel.textContent = '';
+    ids.forEach(id => {
+      const x = b[id], dt = new Date(x.salvato), o = document.createElement('option');
+      const quando = isNaN(dt) ? '' : dt.toLocaleDateString('it-IT') + ' ' + dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      o.value = id;
+      o.textContent = String(x.nome || '(senza nome)') + ' — ' + String(x.anno || '') + ' · salvata il ' + quando;
+      sel.appendChild(o);
+    });
+    if (selId) sel.value = selId;
+    document.getElementById('bozze-n').textContent = ids.length === 1 ? '1 scheda in sospeso' : ids.length + ' schede in sospeso';
+    bar.style.display = 'flex';
+  }
+
+  // ── azioni ──
+  window.salvaBozza = function(){
+    const nome = document.getElementById('nome').value.trim();
+    const anno = document.getElementById('anno').value;
+    if (!nome){ msg('⚠ Per salvare inserire almeno Cognome e Nome.', true); document.getElementById('nome').focus(); return; }
+    try {
+      const b = leggi(), id = idBozza(nome, anno);
+      if (bozzaCorrente && bozzaCorrente !== id && b[bozzaCorrente]) {
+        if (confirm('Nome o anno sono cambiati rispetto alla bozza di ' + b[bozzaCorrente].nome + ' (' + b[bozzaCorrente].anno + ').\nSostituire quella bozza con questa?\n\nOK = sostituisci · Annulla = tienile entrambe'))
+          delete b[bozzaCorrente];
+      }
+      b[id] = { nome, anno, salvato: new Date().toISOString(), dati: istantanea() };
+      scrivi(b);
+      bozzaCorrente = id;
+      modificato = false;
+      const ora = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      msg('✓ Modifiche salvate alle ' + ora + '. Puoi chiudere la pagina e riprendere in seguito da questo stesso computer e browser.');
+      aggiornaBarra(id);
+    } catch(e){
+      msg('⚠ Impossibile salvare nel browser (memoria locale disattivata o piena).', true);
+    }
+  };
+  function riprendi(){
+    const id = document.getElementById('bozze-sel').value, x = leggi()[id];
+    if (!x) return;
+    if (modificato && !confirm('Ci sono modifiche non salvate nella scheda aperta. Caricare comunque la bozza selezionata?')) return;
+    ripristina(x.dati || {});
+    bozzaCorrente = id;
+    msg('↺ Bozza di ' + x.nome + ' caricata. Continua la compilazione e salva di nuovo o invia.');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function elimina(){
+    const id = document.getElementById('bozze-sel').value, b = leggi();
+    if (!b[id] || !confirm('Eliminare la bozza di ' + b[id].nome + '?')) return;
+    delete b[id]; scrivi(b); if (bozzaCorrente === id) bozzaCorrente = null; aggiornaBarra();
+  }
+
+  // ── costruzione interfaccia ──
+  const bar = document.createElement('div');
+  bar.className = 'bozze-bar'; bar.id = 'bozze-bar';
+  bar.innerHTML = '<strong>📝 <span id="bozze-n"></span>:</strong><select id="bozze-sel"></select>' +
+                  '<button type="button" class="b-riprendi">Riprendi</button><button type="button" class="b-elimina">Elimina bozza</button>';
+  document.querySelector('.page').before(bar);
+  bar.querySelector('.b-riprendi').onclick = riprendi;
+  bar.querySelector('.b-elimina').onclick = elimina;
+
+  const btnInvia = document.getElementById('btn-invia');
+  const btnSalva = document.createElement('button');
+  btnSalva.type = 'button'; btnSalva.className = 'btn-salva'; btnSalva.onclick = window.salvaBozza;
+  btnSalva.innerHTML = '💾 Salva modifiche <span class="btn-salva-sub">— puoi continuare in seguito</span>';
+  const m = document.createElement('div'); m.className = 'msg-bozza'; m.id = 'msg-bozza';
+  btnInvia.before(btnSalva, m);
+
+  // traccia modifiche non salvate
+  document.querySelector('.page').addEventListener('input', () => modificato = true);
+  document.querySelector('.page').addEventListener('change', () => modificato = true);
+  window.addEventListener('beforeunload', e => { if (modificato){ e.preventDefault(); e.returnValue = ''; } });
+
+  // dopo invio riuscito → elimina la bozza corrispondente
+  const _inviaOrig = window.invia;
+  window.invia = async function(){
+    const id = idBozza(document.getElementById('nome').value, document.getElementById('anno').value);
+    await _inviaOrig.apply(this, arguments);
+    if (document.getElementById('msg-ok').style.display === 'block'){
+      try { const b = leggi(); if (b[id]) delete b[id]; if (bozzaCorrente && b[bozzaCorrente]) delete b[bozzaCorrente]; scrivi(b); } catch(e){}
+      bozzaCorrente = null;
+      modificato = false;
+      document.getElementById('msg-bozza').style.display = 'none';
+      aggiornaBarra();
+    }
+  };
+
+  // ── PDF: testi lunghi stampati per intero (textarea e campi di testo che non stanno nel riquadro) ──
+  const _pdfOrig = window._generaPdfBase64;
+  if (typeof _pdfOrig === 'function') {
+    window._generaPdfBase64 = async function(){
+      const swaps = [];
+      document.querySelectorAll('.page textarea, .page input[type=text]').forEach(el => {
+        if (el.tagName === 'INPUT' && el.scrollWidth <= el.clientWidth + 1) return;   // input corto: invariato
+        const cs = getComputedStyle(el), d = document.createElement('div');
+        ['fontFamily','fontSize','fontWeight','lineHeight','color','paddingTop','paddingRight','paddingBottom','paddingLeft',
+         'borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','borderTopStyle','borderRightStyle','borderBottomStyle','borderLeftStyle',
+         'borderTopColor','borderRightColor','borderBottomColor','borderLeftColor','borderRadius','backgroundColor']
+          .forEach(k => d.style[k] = cs[k]);
+        d.style.boxSizing = 'border-box'; d.style.width = '100%'; d.style.whiteSpace = 'pre-wrap'; d.style.overflowWrap = 'anywhere';
+        if (el.tagName === 'TEXTAREA') d.style.minHeight = cs.height;
+        d.textContent = el.value;
+        const prev = el.style.display; el.style.display = 'none'; el.after(d);
+        swaps.push(() => { d.remove(); el.style.display = prev; });
+      });
+      try { return await _pdfOrig.apply(this, arguments); }
+      finally { swaps.forEach(f => f()); }
+    };
+  }
+
+  aggiornaBarra();
+})();
+</script>
+
 </body>
 </html>
