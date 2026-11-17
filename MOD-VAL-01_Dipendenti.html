@@ -862,31 +862,46 @@ async function invia() {
     const pdf = await _generaPdfBase64();
     const payload = { filename: _nomeFile(), pdf: pdf, dati: raccogliDati() };
 
-    // Flusso non ancora configurato → scarica il PDF in locale come prova
-    if(POWER_AUTOMATE_URL === 'INSERIRE_URL_POWER_AUTOMATE_QUI') {
+    const okMsg = t => { const m = document.getElementById('msg-ok'); m.textContent = t; m.style.display = 'block'; };
+    const scaricaLocale = () => {
       const a = document.createElement('a');
       a.href = 'data:application/pdf;base64,' + pdf;
       a.download = payload.filename;
-      a.click();
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+
+    // Flusso non configurato → solo download locale
+    if(POWER_AUTOMATE_URL === 'INSERIRE_URL_POWER_AUTOMATE_QUI') {
+      scaricaLocale();
       btn.textContent = '✓ PDF generato';
-      document.getElementById('msg-ok').textContent = '✓ Scheda completata. Il file ' + payload.filename + ' è stato salvato nella cartella Download del computer: archiviarlo nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.';
-      document.getElementById('msg-ok').style.display = 'block';
-      console.log('Nome file:', payload.filename);
+      okMsg('✓ Scheda completata. Il file ' + payload.filename + ' è stato salvato nella cartella Download del computer: archiviarlo nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.');
       return;
     }
 
-    // Invio al flusso Power Automate (no-cors + text/plain per evitare il preflight CORS)
-    btn.textContent = '⏳ Invio in corso...';
-    await fetch(POWER_AUTOMATE_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-    // Risposta opaca (no-cors): conferma ottimistica
-    btn.textContent = '✓ Inviato';
-    document.getElementById('msg-ok').textContent = '✓ Scheda inviata. Il file ' + payload.filename + ' viene archiviato nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.';
-    document.getElementById('msg-ok').style.display = 'block';
+    // Archiviazione automatica (Power Automate → SharePoint) con conferma reale;
+    // se non riesce, il PDF viene comunque scaricato in locale (nessuna perdita di dati)
+    btn.textContent = '⏳ Archiviazione in corso...';
+    let esito, archiviato = '';
+    try {
+      const r = await fetch(POWER_AUTOMATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      let j = {}; try { j = await r.json(); } catch(_) {}
+      esito = r.ok ? 'ok' : ('codice ' + r.status + (j.errore ? ', ' + j.errore : ''));
+      archiviato = j.file || payload.filename;
+    } catch(err) {
+      esito = 'connessione non riuscita';
+    }
+    if (esito === 'ok') {
+      btn.textContent = '✓ Archiviata';
+      okMsg('✓ Scheda archiviata. Il file ' + archiviato + ' è nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.');
+    } else {
+      scaricaLocale();
+      btn.textContent = '✓ PDF scaricato';
+      okMsg('⚠ Archiviazione automatica non riuscita (' + esito + '). Il file ' + payload.filename + ' è stato salvato nella cartella Download: caricarlo a mano nella cartella SCHEDE DI VALUTAZIONE del sito Parità di Genere.');
+    }
 
   } catch(e) {
     console.error(e);
